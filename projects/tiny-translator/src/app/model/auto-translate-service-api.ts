@@ -43,7 +43,7 @@ export class AutoTranslateServiceAPI {
    * @param target the language to translate to
    */
   public canAutoTranslate(source: string, target: string): Observable<boolean> {
-    return of(false);
+    return of(true);
   }
 
   /**

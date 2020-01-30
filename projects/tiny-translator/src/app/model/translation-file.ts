@@ -378,6 +378,8 @@ export class TranslationFile {
     const allMessages: string[] = allTranslatable.map((tu) => {
       return tu.sourceContentNormalized().dislayText(true);
     });
+    console.log('doAutoTranslateNonICUMessages-jeroen1')
+    console.log(allMessages)
     return autoTranslateService.translateMultipleStrings(allMessages, this.sourceLanguage(), this.targetLanguage())
       .pipe(
           map((translations: string[]) => {
@@ -420,6 +422,8 @@ export class TranslationFile {
       return of(summary);
     }
     const allMessages: string[] = categories.map((category) => category.getMessageNormalized().asDisplayString());
+    console.log('doAutoTranslateICUMessage-nvt-jeroen')
+    console.log(allMessages)
     return autoTranslateService.translateMultipleStrings(allMessages, this.sourceLanguage(), this.targetLanguage())
       .pipe(
           map((translations: string[]) => {

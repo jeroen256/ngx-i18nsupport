@@ -125,6 +125,7 @@ export class AutoTranslateGoogleService extends AutoTranslateServiceAPI {
    * @param target the language to translate to
    */
   public canAutoTranslate(source: string, target: string): Observable<boolean> {
+    return this.supportedLanguages().pipe(map(x => {return true;}));
     return this.supportedLanguages().pipe(
         map((languages: Language[]) => {
           const s = AutoTranslateGoogleService.stripRegioncode(source);
@@ -223,21 +224,43 @@ export class AutoTranslateGoogleService extends AutoTranslateServiceAPI {
    */
   public translate(message: string, from: string, to: string): Observable<string> {
     if (!this._apiKey) {
-      return observableThrowError('error, no api key');
+      //return observableThrowError('error, no api key');
     }
     from = AutoTranslateGoogleService.stripRegioncode(from);
     to = AutoTranslateGoogleService.stripRegioncode(to);
-    const translateRequest: TranslateTextRequest = {
-      q: [message],
-      target: to,
-      source: from,
-      // format: TODO useful html or text
-    };
-    const realUrl = this._rootUrl + 'language/translate/v2' + '?key=' + this._apiKey;
-    return this.httpClient.post<{data: TranslationsListResponse}>(realUrl, translateRequest).pipe(map((response) => {
-      const result: TranslationsListResponse = response.data;
-      return result.translations[0].translatedText;
-    }));
+    console.log('translate-jeroen: from: ' + from + ' to: ' + to + ' in: ' + message);
+    return this.httpClient.get<string>('http://localhost:3000/translatte/' + from + '/' + to + '/' + encodeURIComponent(message)).pipe(
+      map(x => {
+        console.log('translate-jeroen: out: ' + x);
+        return x;
+      }),
+      catchError(err => {
+        console.log('translate-jeroen: error: ' + err.message);
+        console.log(err);
+        return 'translate-jeroen: error: ' + err.message;
+      })
+    );
+    // .subscribe(x => {
+    //   console.log('translate-jeroen: out: ' + x);
+    //   return x;
+    // }, err => {
+    //   console.log('translate-jeroen: error: ' + err.message);
+    //   console.log(err);
+    //   return 'translate-jeroen: error: ' + err.message;
+    // });
+    // console.log('translate-jeroen: out: ' + out);
+    // return of(out);
+    // const translateRequest: TranslateTextRequest = {
+    //   q: [message],
+    //   target: to,
+    //   source: from,
+    //   // format: TODO useful html or text
+    // };
+    // const realUrl = this._rootUrl + 'language/translate/v2' + '?key=' + this._apiKey;
+    // return this.httpClient.post<{data: TranslationsListResponse}>(realUrl, translateRequest).pipe(map((response) => {
+    //   const result: TranslationsListResponse = response.data;
+    //   return result.translations[0].translatedText;
+    // }));
   }
 
   /**
@@ -249,13 +272,15 @@ export class AutoTranslateGoogleService extends AutoTranslateServiceAPI {
    */
   public translateMultipleStrings(messages: string[], from: string, to: string): Observable<string[]> {
     if (!this._apiKey) {
-      return observableThrowError('error, no api key');
+      //return observableThrowError('error, no api key');
     }
     if (messages.length === 0) {
       return of([]);
     }
     from = AutoTranslateGoogleService.stripRegioncode(from);
     to = AutoTranslateGoogleService.stripRegioncode(to);
+    console.log('translateMultipleStrings-jeroen1 from:' + from + ' to:' + to);
+    console.log(messages)
     const allRequests: Observable<string[]>[] = this.splitMessagesToGoogleLimit(messages).map((partialMessages: string[]) => {
       return this.limitedTranslateMultipleStrings(partialMessages, from, to);
     });
@@ -277,8 +302,12 @@ export class AutoTranslateGoogleService extends AutoTranslateServiceAPI {
    * @return the translated strings
    */
   private limitedTranslateMultipleStrings(messages: string[], from: string, to: string): Observable<string[]> {
+    console.log('limitedTranslateMultipleStrings-jeroen from: ' + from + ' to: ' + to)
+    console.log(messages)
+    messages.forEach((x, i) => { messages[i] = 'de-' + x; } );
+    return of(messages);
     if (!this._apiKey) {
-      return observableThrowError('error, no api key');
+      //return observableThrowError('error, no api key');
     }
     from = AutoTranslateGoogleService.stripRegioncode(from);
     to = AutoTranslateGoogleService.stripRegioncode(to);
